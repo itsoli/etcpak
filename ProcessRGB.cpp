@@ -25,6 +25,8 @@
 
 #ifndef _bswap
 #  define _bswap(x) __builtin_bswap32(x)
+#endif
+#ifndef _bswap64
 #  define _bswap64(x) __builtin_bswap64(x)
 #endif
 
@@ -3172,6 +3174,7 @@ static etcpak_force_inline int GetMulSel( int sel )
     switch( sel )
     {
     case 0:
+    default:
         return 0;
     case 1:
     case 2:

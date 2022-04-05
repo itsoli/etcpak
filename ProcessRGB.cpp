@@ -25,6 +25,8 @@
 
 #ifndef _bswap
 #  define _bswap(x) __builtin_bswap32(x)
+#endif
+#ifndef _bswap64
 #  define _bswap64(x) __builtin_bswap64(x)
 #endif
 
@@ -1950,7 +1952,7 @@ static etcpak_force_inline int16x8_t Planar_NEON_SumWide( uint8x16_t src )
     uint16x4_t accu2 = vpadd_u16( accu4, accu4 );
     uint16x4_t accu1 = vpadd_u16( accu2, accu2 );
     return vreinterpretq_s16_u16( vcombine_u16( accu1, accu1 ) );
-#else 
+#else
     return vdupq_n_s16( vaddvq_u16( accu8 ) );
 #endif
 }
@@ -2279,7 +2281,7 @@ uint32_t compressBlockTH( uint8_t *src, Luma& l, uint32_t& compressed1, uint32_t
     alignas( 8 ) uint8_t luma[16] = { 0 };
     vst1q_u8( luma, l.luma8 );
 #else
-    uint8_t* luma = &l.val;
+    uint8_t* luma = l.val;
 #endif
 
     uint8_t pixIdx[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
@@ -2816,6 +2818,7 @@ static inline void stuff58bits( unsigned int thumbH58W1, unsigned int thumbH58W2
     thumbHW2 = thumbH58W2;
 }
 
+#if defined __AVX2__ || defined __ARM_NEON
 static etcpak_force_inline Channels GetChannels( const uint8_t* src )
 {
     Channels ch;
@@ -2866,6 +2869,8 @@ static etcpak_force_inline Channels GetChannels( const uint8_t* src )
 #endif
     return ch;
 }
+#endif
+
 #if defined __AVX2__ || defined __ARM_NEON
 static etcpak_force_inline void CalculateLuma( Channels& ch, Luma& luma )
 #else
@@ -3065,7 +3070,11 @@ static etcpak_force_inline uint64_t ProcessRGB_ETC2( const uint8_t* src, bool us
 
     return EncodeSelectors_AVX2( d, terr, tsel, ( idx % 2 ) == 1, plane.plane, plane.error );
 #else
+#if defined __AVX2__ || defined __ARM_NEON
     Channels ch = GetChannels( src );
+#else
+    auto ch = src;
+#endif
     if( useHeuristics )
     {
         CalculateLuma( ch, luma );
@@ -3165,6 +3174,7 @@ static etcpak_force_inline int GetMulSel( int sel )
     switch( sel )
     {
     case 0:
+    default:
         return 0;
     case 1:
     case 2:

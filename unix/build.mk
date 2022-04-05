@@ -1,4 +1,12 @@
-CFLAGS += -DNO_GZIP -DPNG_INTEL_SSE
+ARCH := $(shell uname -m)
+
+ifeq ($(ARCH),x86_64)
+CFLAGS += -msse4.1 -mavx2 -mfma
+endif
+
+CFLAGS += -Wno-logical-not-parentheses -Wno-unused-lambda-capture
+
+CFLAGS += -DNO_GZIP -DPNG_INTEL_SSE -DZ_HAVE_UNISTD_H
 CXXFLAGS := $(CFLAGS) -std=c++11
 DEFINES +=
 INCLUDES := -I../zlib

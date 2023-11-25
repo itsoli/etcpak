@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(etcpak VERSION 0.8)
+project(etcpak VERSION 1.0)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
